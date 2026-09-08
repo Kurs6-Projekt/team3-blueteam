@@ -243,13 +243,3 @@ resource "google_compute_firewall" "allow_instructor" {
     metadata = "INCLUDE_ALL_METADATA"
   }
 }
-
-resource "google_iap_tunnel_instance_iam_member" "jumphost" {
-  for_each = toset(var.iap_users)
-
-  project  = var.project_id
-  zone     = google_compute_instance.jumphost.zone
-  instance = google_compute_instance.jumphost.name
-  role     = "roles/iap.tunnelResourceAccessor"
-  member   = each.value
-}
