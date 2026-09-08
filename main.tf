@@ -186,3 +186,70 @@ resource "google_compute_firewall" "allow_traffic" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["jumphost", "primary"]
 }
+
+resource "google_compute_firewall" "allow_iap_ssh" {
+  name    = "team${var.team_id}-allow-iap-ssh"
+  network = data.google_compute_network.team_vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["35.235.240.0/20"]
+  target_tags   = ["jumphost", "primary"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_firewall" "allow_internal" {
+  name    = "team${var.team_id}-allow-internal"
+  network = data.google_compute_network.team_vpc.name
+
+  allow {
+    protocol = "tcp"
+  }
+
+  allow {
+    protocol = "udp"
+  }
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = [local.subnet_cidr]
+  target_tags   = ["jumphost", "primary"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_firewall" "allow_instructor" {
+  name    = "team${var.team_id}-allow-instructor"
+  network = data.google_compute_network.team_vpc.name
+
+  allow {
+    protocol = "all"
+  }
+
+  source_ranges = [var.instructor_cidr]
+  target_tags   = ["jumphost", "primary"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_iap_tunnel_instance_iam_member" "jumphost" {
+  for_each = toset(var.iap_users)
+
+  project  = var.project_id
+  zone     = google_compute_instance.jumphost.zone
+  instance = google_compute_instance.jumphost.name
+  role     = "roles/iap.tunnelResourceAccessor"
+  member   = each.value
+}
