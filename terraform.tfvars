@@ -13,5 +13,17 @@ ssh_users = [
   {
     username   = "erik"
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN55FYafE+afGtrzpU72/2DrJwbk0bgDLF9Qk1x7gwTk"
+  },
+  {
+    username   = "carl"
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMd5T8kLIQ1K0Q4QsbKuDhmldvIBbBWTBdwq82CcxUrv"
+  },
+  {
+    username   = "marcus"
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJkDj9bP9xvrWBJG3oSAdImyMFM87HR+hCr+J/NpSi8t"
+  },
+  {
+    username   = "viktor"
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHGvsL91mHq+mpZvrqbtV+Zb3GSkgoU3R52/wpDW7mp"
   }
 ]
