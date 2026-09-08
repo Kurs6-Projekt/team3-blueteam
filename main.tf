@@ -92,6 +92,12 @@ resource "google_compute_instance" "jumphost" {
     }
   }
 
+  shielded_instance_config {
+    enable_secure_boot          = true
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
+  }
+
   network_interface {
     subnetwork = google_compute_subnetwork.team.id
     network_ip = cidrhost(local.subnet_cidr, 2)
