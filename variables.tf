@@ -39,3 +39,8 @@ variable "ssh_users" {
     public_key = string
   }))
 }
+variable "iap_users" {
+  description = "Members allowed to connect through IAP TCP forwarding, e.g. \"user:namn@chasacademy.se\""
+  type        = list(string)
+  default     = []
+}
