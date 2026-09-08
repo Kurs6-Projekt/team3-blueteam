@@ -9,5 +9,9 @@ ssh_users = [
   {
     username   = "andre"
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILxVuxlCcwGPyb52UT1GRDD2iC5yNPuN+k14hx08ZgJw"
+  },
+  {
+    username   = "erik"
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN55FYafE+afGtrzpU72/2DrJwbk0bgDLF9Qk1x7gwTk"
   }
 ]
