@@ -27,12 +27,3 @@ ssh_users = [
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHGvsL91mHq+mpZvrqbtV+Zb3GSkgoU3R52/wpDW7mp"
   }
 ]
-
-iap_users = [
-  "user:jonathan.tsubarah@chasacademy.se",
-  "user:andre.edvardsson@chasacademy.se",
-  "user:erik.alduaifi@chasacademy.se",
-  "user:marcus.gustafsson@chasacademy.se",
-  "user:carl.persson@chasacademy.se",
-  "user:viktor.westerlund@chasacademy.se",
-]
