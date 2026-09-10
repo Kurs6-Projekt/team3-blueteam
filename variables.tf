@@ -39,3 +39,8 @@ variable "ssh_users" {
     public_key = string
   }))
 }
+
+variable "ssh_source_ranges" {
+  description = "Källadresser som tillåts nå SSH på jumphosten. Snävas åt när en stabil åtkomstväg finns."
+  type        = list(string)
+}

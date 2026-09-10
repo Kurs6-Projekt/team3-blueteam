@@ -27,3 +27,5 @@ ssh_users = [
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHGvsL91mHq+mpZvrqbtV+Zb3GSkgoU3R52/wpDW7mp"
   }
 ]
+
+ssh_source_ranges = ["0.0.0.0/0"]
