@@ -7,3 +7,5 @@ ssh_users = [
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILYqu1F6xW942A1Pn82NPeZQBsLEB2yqOK2bdbwkVzna"
   }
 ]
+
+ssh_source_ranges = ["0.0.0.0/0"]

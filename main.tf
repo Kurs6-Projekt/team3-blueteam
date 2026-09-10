@@ -175,16 +175,21 @@ resource "google_compute_instance" "jumphost" {
 #   }
 # }
 
-resource "google_compute_firewall" "allow_traffic" {
-  name    = "team${var.team_id}-allow-traffic"
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "team${var.team_id}-allow-ssh"
   network = data.google_compute_network.team_vpc.name
 
   allow {
-    protocol = "all"
+    protocol = "tcp"
+    ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = var.ssh_source_ranges
   target_tags   = ["jumphost", "primary"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
 }
 
 resource "google_compute_firewall" "allow_iap_ssh" {
