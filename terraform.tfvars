@@ -8,7 +8,7 @@ ssh_users = [
   },
   {
     username   = "andre"
-    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILxVuxlCcwGPyb52UT1GRDD2iC5yNPuN+k14hx08ZgJw"
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGqQkyhbv6kPc+oc3nKd+GAMG83W6j+J0Gg3RYi8bKCF andre.edvardsson@chasacademy.se"
   },
   {
     username   = "erik"
