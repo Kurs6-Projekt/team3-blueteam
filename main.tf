@@ -92,8 +92,12 @@ resource "google_compute_instance" "jumphost" {
     }
   }
 
+  # Secure Boot kan inte aktiveras med labbens image. Kärnan underkänns av
+  # shim: "prohibited by secure boot policy" och "bad shim signature".
+  # Maskinen blir då stående i GRUB-menyn och når aldrig OS, medan instansen
+  # ändå rapporterar RUNNING. Slå inte på igen utan en signerad kärna.
   shielded_instance_config {
-    enable_secure_boot          = true
+    enable_secure_boot          = false
     enable_vtpm                 = true
     enable_integrity_monitoring = true
   }
