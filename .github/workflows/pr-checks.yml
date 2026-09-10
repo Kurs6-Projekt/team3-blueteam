@@ -15,10 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.15.7"
+
+      - name: TFLint
+        continue-on-error: true
+        run: tflint --recursive
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
@@ -28,3 +35,10 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          soft_fail: true
