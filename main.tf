@@ -117,6 +117,7 @@ resource "google_compute_instance" "jumphost" {
   }
 
   metadata = {
+    enable-oslogin = "TRUE"	
     ssh-keys               = join("\n", [for user in var.ssh_users : "${user.username}:${user.public_key}"])
     block-project-ssh-keys = true
     startup-script         = <<-EOT
@@ -257,4 +258,12 @@ resource "google_compute_firewall" "allow_instructor" {
   log_config {
     metadata = "INCLUDE_ALL_METADATA"
   }
+}
+# Tilldela osAdminLogin till alla e-postadresser i variabeln
+resource "google_compute_instance_iam_member" "jumphost_os_login" {
+  for_each      = toset(var.os_admin_users)
+  instance_name = google_compute_instance.jumphost.name
+  zone          = google_compute_instance.jumphost.zone
+  role          = "roles/compute.osAdminLogin"
+  member        = "user:${each.value}"
 }
