@@ -50,3 +50,9 @@ variable "os_admin_users" {
   description = "E-postadresser som ska få osAdminLogin på jumphosten"
   default     = []
 }
+
+variable "os_login_users" {
+  type        = list(string)
+  description = "E-postadresser som ska få standard-OS Login på jumphosten"
+  default     = []
+}

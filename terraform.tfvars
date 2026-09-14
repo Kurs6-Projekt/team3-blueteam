@@ -29,5 +29,15 @@ ssh_users = [
 ]
 
 ssh_source_ranges = ["0.0.0.0/0"]
-os_admin_users    = ["dennis.heimbert@chasacademy.se"]
+os_admin_users = [
+  "dennis.heimbert@chasacademy.se",
+]
 
+os_login_users = [
+  "andre.edvardsson@chasacademy.se",
+  "carl.persson@chasacademy.se",
+  "erik.alduaifi@chasacademy.se",
+  "jonathan.tsubarah@chasacademy.se",
+  "marcus.gustafsson@chasacademy.se",
+  "viktor.westerlund@chasacademy.se",
+]
