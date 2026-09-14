@@ -259,11 +259,20 @@ resource "google_compute_firewall" "allow_instructor" {
     metadata = "INCLUDE_ALL_METADATA"
   }
 }
-# Tilldela osAdminLogin till alla e-postadresser i variabeln
-resource "google_compute_instance_iam_member" "jumphost_os_login" {
+# Tilldela administratörsåtkomst endast till användare som behöver sudo.
+resource "google_compute_instance_iam_member" "jumphost_os_admin_login" {
   for_each      = toset(var.os_admin_users)
   instance_name = google_compute_instance.jumphost.name
   zone          = google_compute_instance.jumphost.zone
   role          = "roles/compute.osAdminLogin"
+  member        = "user:${each.value}"
+}
+
+# Övriga teammedlemmar kan logga in men saknar sudo-rättigheter.
+resource "google_compute_instance_iam_member" "jumphost_os_login" {
+  for_each      = toset(var.os_login_users)
+  instance_name = google_compute_instance.jumphost.name
+  zone          = google_compute_instance.jumphost.zone
+  role          = "roles/compute.osLogin"
   member        = "user:${each.value}"
 }
