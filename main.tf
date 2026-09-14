@@ -83,6 +83,12 @@ resource "google_compute_instance" "jumphost" {
 
   tags = ["jumphost"]
 
+
+  service_account {
+    email  = "team${var.team_id}-jumphost@${var.project_id}.iam.gserviceaccount.com"
+    scopes = ["cloud-platform"]
+  }
+
   resource_policies = [google_compute_resource_policy.daily_schedule.id]
 
   boot_disk {
