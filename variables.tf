@@ -44,3 +44,9 @@ variable "ssh_source_ranges" {
   description = "Källadresser som tillåts nå SSH på jumphosten. Snävas åt när en stabil åtkomstväg finns."
   type        = list(string)
 }
+
+variable "os_admin_users" {
+  type        = list(string)
+  description = "E-postadresser som ska få osAdminLogin på jumphosten"
+  default     = []
+}

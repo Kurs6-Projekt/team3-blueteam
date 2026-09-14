@@ -29,3 +29,5 @@ ssh_users = [
 ]
 
 ssh_source_ranges = ["0.0.0.0/0"]
+os_admin_users    = ["dennis.heimbert@chasacademy.se"]
+
