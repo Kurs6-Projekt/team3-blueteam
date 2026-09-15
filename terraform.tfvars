@@ -28,7 +28,7 @@ ssh_users = [
   }
 ]
 
-ssh_source_ranges = ["0.0.0.0/0"]
+ssh_source_ranges = ["10.0.0.0/24"]
 os_admin_users = [
   "dennis.heimbert@chasacademy.se",
 ]
@@ -41,3 +41,5 @@ os_login_users = [
   "marcus.gustafsson@chasacademy.se",
   "viktor.westerlund@chasacademy.se",
 ]
+
+primary_zone = "europe-north2-a"
