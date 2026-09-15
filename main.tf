@@ -136,8 +136,20 @@ resource "google_compute_instance" "jumphost" {
       echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/99-ip-forward.conf
       sysctl --system
 
+      apt-get update
+      DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq
+
+      cat > /etc/dnsmasq.d/tailscale-gcp-dns.conf <<'DNSMASQ'
+      interface=tailscale0
+      bind-dynamic
+      server=169.254.169.254
+      DNSMASQ
+
+      systemctl restart dnsmasq
+
       DEFAULT_IF=$(ip ro sh default | awk '/default/ {print $5}')
       iptables -t nat -A POSTROUTING -o "$DEFAULT_IF" -s "${local.subnet_cidr}" -j MASQUERADE
+      iptables -t nat -A POSTROUTING -o "$DEFAULT_IF" -d 10.0.0.2/32 -j MASQUERADE
     EOT
   }
 }
@@ -236,7 +248,7 @@ resource "google_compute_firewall" "allow_internal" {
     protocol = "icmp"
   }
 
-  source_ranges = [local.subnet_cidr]
+  source_ranges = [local.subnet_cidr, "100.64.0.0/10"]
   target_tags   = ["jumphost", "primary"]
 
   log_config {
