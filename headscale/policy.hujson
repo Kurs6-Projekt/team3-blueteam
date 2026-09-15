@@ -11,10 +11,16 @@
   },
 
   "acls": [
-    {
-      "action": "accept",
-      "src": ["group:students"],
-      "dst": ["10.0.0.2:443"]
-    }
-  ]
+  {
+    "action": "accept",
+    "src": ["group:students"],
+    "dst": ["100.64.0.2:53"]
+  },
+  {
+    "action": "accept",
+    "src": ["group:students"],
+    "dst": ["10.0.0.2:443"]
+  }
+]
+
 }
