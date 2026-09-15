@@ -28,7 +28,7 @@ ssh_users = [
   }
 ]
 
-ssh_source_ranges = ["10.0.0.0/24"]
+ssh_source_ranges = ["10.0.0.0/24", "78.67.20.193/32"]
 os_admin_users = [
   "dennis.heimbert@chasacademy.se",
 ]
