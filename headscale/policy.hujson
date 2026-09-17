@@ -14,7 +14,7 @@
   {
     "action": "accept",
     "src": ["group:students"],
-    "dst": ["100.64.0.2:53"]
+    "dst": ["100.64.0.2:22,53"]
   },
   {
     "action": "accept",
