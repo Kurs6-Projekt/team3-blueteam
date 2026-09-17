@@ -215,23 +215,6 @@ resource "google_compute_firewall" "allow_ssh" {
   }
 }
 
-resource "google_compute_firewall" "allow_iap_ssh" {
-  name    = "team${var.team_id}-allow-iap-ssh"
-  network = data.google_compute_network.team_vpc.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["35.235.240.0/20"]
-  target_tags   = ["jumphost", "primary"]
-
-  log_config {
-    metadata = "INCLUDE_ALL_METADATA"
-  }
-}
-
 resource "google_compute_firewall" "allow_internal" {
   name    = "team${var.team_id}-allow-internal"
   network = data.google_compute_network.team_vpc.name
