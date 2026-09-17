@@ -1,55 +1,80 @@
 {
   "groups": {
-    "group:students": [
-      "marcus@",
-      "andre@",
-      "carl@",
-      "erik@",
-      "jonathan@",
-      "viktor@"
-    ],
+    // Labbmiljön: riktiga användare i Headscale
+    "group:students":   ["marcus@", "andre@", "carl@", "erik@", "jonathan@", "viktor@"],
+    "group:instruktor": ["dennis@"],
 
-    "group:admins": [
-      "admin@"
-    ],
+    // Fiktivt företag: tre roller med olika behov
+    "group:it-drift":   ["sara@", "omar@"],
+    "group:utvecklare": ["elin@", "noah@"],
+    "group:anstallda":  ["petra@", "jonas@"]
+  },
 
-    "group:developers": [
-      "developer@"
-    ],
-
-    "group:employees": [
-      "employee@"
-    ]
+  // Endast IT-drift får sätta taggar. Utan den här spärren kan vem som
+  // helst tagga sin egen maskin som tag:db och därmed ge sig själv
+  // databasens behörigheter.
+  "tagOwners": {
+    "tag:webb": ["group:it-drift"],
+    "tag:db":   ["group:it-drift"]
   },
 
   "acls": [
-    // Teamet behöver full åtkomst för att administrera
-    // och genomföra övningarna i labbmiljön
+    // ---------- Labbmiljö ----------
+    // Styr på adresser, eftersom vi har fasta adresser att peka på.
+
+    // Jumphosten: SSH och DNS. Den här regeln måste finnas.
+    // Saknas port 22 låser vi ut oss från maskinen som kör Headscale.
     {
       "action": "accept",
-      "src": ["group:students"],
-      "dst": ["*:*"]
+      "src":    ["group:students", "group:instruktor"],
+      "dst":    ["100.64.0.2:22,53"]
     },
 
-    // Administratörer får full åtkomst till företagets interna nät
+    // Teamets interna subnät, annonserat av jumphosten som subnet router.
     {
       "action": "accept",
-      "src": ["group:admins"],
-      "dst": ["10.0.3.0/24:*"]
+      "src":    ["group:students", "group:instruktor"],
+      "dst":    ["10.0.3.0/24:*"]
     },
 
-    // Utvecklare får SSH samt HTTP/HTTPS till interna resurser
+    // Spectre. Endast HTTPS, inget annat behövs.
     {
       "action": "accept",
-      "src": ["group:developers"],
-      "dst": ["10.0.3.0/24:22,80,443"]
+      "src":    ["group:students", "group:instruktor"],
+      "dst":    ["10.0.0.2/32:443"]
     },
 
-    // Vanliga anställda får endast använda webbtjänster
+    // ---------- Fiktivt företag ----------
+    // Styr på taggar i stället för adresser. Servrar byts ut och får nya
+    // adresser, men rollen består. Ingen nod bär taggarna i vår labbmiljö
+    // eftersom vi inte har några servrar i tailnetet att tagga.
+
+    // IT-drift administrerar servrarna.
     {
       "action": "accept",
-      "src": ["group:employees"],
-      "dst": ["10.0.3.0/24:80,443"]
+      "src":    ["group:it-drift"],
+      "dst":    ["tag:webb:*", "tag:db:*"]
+    },
+
+    // Utvecklare felsöker webbservrarna men når aldrig databasen direkt.
+    {
+      "action": "accept",
+      "src":    ["group:utvecklare"],
+      "dst":    ["tag:webb:22,80,443"]
+    },
+
+    // Anställda använder webbtjänsten och inget annat.
+    {
+      "action": "accept",
+      "src":    ["group:anstallda"],
+      "dst":    ["tag:webb:80,443"]
+    },
+
+    // Applikationen når databasen. Ingen människa gör det direkt.
+    {
+      "action": "accept",
+      "src":    ["tag:webb"],
+      "dst":    ["tag:db:5432"]
     }
   ]
 }
