@@ -7,20 +7,49 @@
       "erik@",
       "jonathan@",
       "viktor@"
+    ],
+
+    "group:admins": [
+      "admin@"
+    ],
+
+    "group:developers": [
+      "developer@"
+    ],
+
+    "group:employees": [
+      "employee@"
     ]
   },
 
   "acls": [
-  {
-    "action": "accept",
-    "src": ["group:students"],
-    "dst": ["100.64.0.2:53"]
-  },
-  {
-    "action": "accept",
-    "src": ["group:students"],
-    "dst": ["10.0.0.2:443"]
-  }
-]
+    // Teamet behöver full åtkomst för att administrera
+    // och genomföra övningarna i labbmiljön
+    {
+      "action": "accept",
+      "src": ["group:students"],
+      "dst": ["*:*"]
+    },
 
+    // Administratörer får full åtkomst till företagets interna nät
+    {
+      "action": "accept",
+      "src": ["group:admins"],
+      "dst": ["10.0.3.0/24:*"]
+    },
+
+    // Utvecklare får SSH samt HTTP/HTTPS till interna resurser
+    {
+      "action": "accept",
+      "src": ["group:developers"],
+      "dst": ["10.0.3.0/24:22,80,443"]
+    },
+
+    // Vanliga anställda får endast använda webbtjänster
+    {
+      "action": "accept",
+      "src": ["group:employees"],
+      "dst": ["10.0.3.0/24:80,443"]
+    }
+  ]
 }
