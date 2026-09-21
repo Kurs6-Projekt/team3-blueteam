@@ -15,10 +15,25 @@
   // databasens behörigheter.
   "tagOwners": {
     "tag:webb": ["group:it-drift"],
-    "tag:db":   ["group:it-drift"]
+    "tag:db":   ["group:it-drift"],
+    // GitHub Actions registrerar sin tillfälliga runner med denna tagg.
+    "tag:github-runner": ["github-ci@"]
   },
 
   "acls": [
+    // GitHub-runnern får endast nå Kubernetes API:t på primary.
+    {
+      "action": "accept",
+      "src":    ["tag:github-runner"],
+      "dst":    ["10.0.3.3:6443"]
+    },
+    {
+      "action": "accept",
+      "src":    ["tag:github-runner"],
+      "proto":  "icmp",
+      "dst":    ["10.0.3.3:*"]
+    },
+
     // ---------- Labbmiljö ----------
     // Styr på adresser, eftersom vi har fasta adresser att peka på.
 
