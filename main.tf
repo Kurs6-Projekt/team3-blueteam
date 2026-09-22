@@ -177,6 +177,9 @@ resource "google_compute_instance" "primary" {
   }
 
   metadata = {
+    # Behåll metadata-nycklar under övergången. De tas bort först när
+    # samtliga OS Login-användare har verifierat åtkomst till primary.
+    enable-oslogin         = "TRUE"
     ssh-keys               = join("\n", [for user in var.ssh_users : "${user.username}:${user.public_key}"])
     block-project-ssh-keys = true
     startup-script         = <<-EOT
@@ -285,6 +288,24 @@ resource "google_compute_instance_iam_member" "jumphost_os_login" {
   for_each      = toset(var.os_login_users)
   instance_name = google_compute_instance.jumphost.name
   zone          = google_compute_instance.jumphost.zone
+  role          = "roles/compute.osLogin"
+  member        = "user:${each.value}"
+}
+
+# Primary använder samma IAM-styrda SSH-åtkomst som jumphosten.
+# Metadata-nycklarna finns kvar tillfälligt tills inloggning har verifierats.
+resource "google_compute_instance_iam_member" "primary_os_admin_login" {
+  for_each      = toset(var.os_admin_users)
+  instance_name = google_compute_instance.primary.name
+  zone          = google_compute_instance.primary.zone
+  role          = "roles/compute.osAdminLogin"
+  member        = "user:${each.value}"
+}
+
+resource "google_compute_instance_iam_member" "primary_os_login" {
+  for_each      = toset(var.os_login_users)
+  instance_name = google_compute_instance.primary.name
+  zone          = google_compute_instance.primary.zone
   role          = "roles/compute.osLogin"
   member        = "user:${each.value}"
 }
