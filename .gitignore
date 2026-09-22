@@ -8,3 +8,5 @@
 # Plan-filer (innehåller hemligheter)
 tfplan
 *.tfplan
+*.tfvars
+!*.tfvars.example
