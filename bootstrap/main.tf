@@ -53,10 +53,25 @@ resource "google_service_account" "cicd" {
   display_name = "CI/CD Pipeline Service Account"
 }
 
-resource "google_project_iam_member" "cicd_editor" {
+# CI/CD-kontot behover tre saker: hantera compute-resurser, agera som
+# jumphostens service account, och lasa och skriva state i sin egen bucket.
+# roles/editor gav rattigheter i hela det delade projektet.
+resource "google_project_iam_member" "cicd_compute_admin" {
   project = var.project_id
-  role    = "roles/editor"
+  role    = "roles/compute.admin"
   member  = "serviceAccount:${google_service_account.cicd.email}"
+}
+
+resource "google_service_account_iam_member" "cicd_act_as_jumphost" {
+  service_account_id = "projects/${var.project_id}/serviceAccounts/team${var.team_id}-jumphost@${var.project_id}.iam.gserviceaccount.com"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cicd.email}"
+}
+
+resource "google_storage_bucket_iam_member" "cicd_state" {
+  bucket = google_storage_bucket.terraform_state.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.cicd.email}"
 }
 
 resource "google_iam_workload_identity_pool" "github" {
