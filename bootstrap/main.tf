@@ -29,6 +29,12 @@ resource "google_storage_bucket" "terraform_state" {
   location = "EU"
 
   uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+
+  logging {
+    log_bucket        = google_storage_bucket.access_logs.name
+    log_object_prefix = "terraform-state"
+  }
 
   lifecycle_rule {
     condition {
@@ -46,6 +52,33 @@ resource "google_storage_bucket" "terraform_state" {
   lifecycle {
     prevent_destroy = true
   }
+}
+
+# Loggbucket för åtkomstloggar på state-bucketen. Samma slumpsuffix som
+# state-bucketen, eftersom bucketnamn är globalt unika i hela GCP.
+resource "google_storage_bucket" "access_logs" {
+  name                        = "team${var.team_id}-storage-logs-${random_id.bucket_suffix.hex}"
+  location                    = "EU"
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+
+  lifecycle_rule {
+    condition {
+      age = 365
+    }
+    action {
+      type = "Delete"
+    }
+  }
+}
+
+# Utan den här bindningen levereras inga loggar alls.
+# cloud-storage-analytics@google.com är Googles egen loggtjänst, och den
+# ska bara ha skrivrätt på loggbucketen - aldrig på state-bucketen.
+resource "google_storage_bucket_iam_member" "access_logs_writer" {
+  bucket = google_storage_bucket.access_logs.name
+  role   = "roles/storage.objectCreator"
+  member = "group:cloud-storage-analytics@google.com"
 }
 
 resource "google_service_account" "cicd" {
@@ -68,10 +101,31 @@ resource "google_service_account_iam_member" "cicd_act_as_jumphost" {
   member             = "serviceAccount:${google_service_account.cicd.email}"
 }
 
-resource "google_storage_bucket_iam_member" "cicd_state" {
-  bucket = google_storage_bucket.terraform_state.name
-  role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.cicd.email}"
+data "google_iam_policy" "terraform_state" {
+  # Behåll projektägarens nödåtkomst, men ta bort de automatiska
+  # projectEditor/projectViewer-bindningarna från den delade bucketens policy.
+  binding {
+    role    = "roles/storage.legacyBucketOwner"
+    members = ["projectOwner:${var.project_id}"]
+  }
+
+  binding {
+    role    = "roles/storage.legacyObjectOwner"
+    members = ["projectOwner:${var.project_id}"]
+  }
+
+  binding {
+    role = "roles/storage.objectAdmin"
+    members = concat(
+      ["serviceAccount:${google_service_account.cicd.email}"],
+      [for email in var.state_admin_users : "user:${email}"]
+    )
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "terraform_state" {
+  bucket      = google_storage_bucket.terraform_state.name
+  policy_data = data.google_iam_policy.terraform_state.policy_data
 }
 
 resource "google_iam_workload_identity_pool" "github" {
@@ -114,5 +168,4 @@ resource "google_project_service" "iap" {
 # på iap.tunnelInstances.getIamPolicy. Projektnivå skulle fungera men rör IAM
 # i det delade projektet, utanför team3:s egna resurser. Avvaktar besked från
 # instruktören. Se motsvarande issue.
-
 
