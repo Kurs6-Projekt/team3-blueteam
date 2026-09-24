@@ -101,10 +101,31 @@ resource "google_service_account_iam_member" "cicd_act_as_jumphost" {
   member             = "serviceAccount:${google_service_account.cicd.email}"
 }
 
-resource "google_storage_bucket_iam_member" "cicd_state" {
-  bucket = google_storage_bucket.terraform_state.name
-  role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.cicd.email}"
+data "google_iam_policy" "terraform_state" {
+  # Behåll projektägarens nödåtkomst, men ta bort de automatiska
+  # projectEditor/projectViewer-bindningarna från den delade bucketens policy.
+  binding {
+    role    = "roles/storage.legacyBucketOwner"
+    members = ["projectOwner:${var.project_id}"]
+  }
+
+  binding {
+    role    = "roles/storage.legacyObjectOwner"
+    members = ["projectOwner:${var.project_id}"]
+  }
+
+  binding {
+    role = "roles/storage.objectAdmin"
+    members = concat(
+      ["serviceAccount:${google_service_account.cicd.email}"],
+      [for email in var.state_admin_users : "user:${email}"]
+    )
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "terraform_state" {
+  bucket      = google_storage_bucket.terraform_state.name
+  policy_data = data.google_iam_policy.terraform_state.policy_data
 }
 
 resource "google_iam_workload_identity_pool" "github" {
@@ -147,5 +168,4 @@ resource "google_project_service" "iap" {
 # på iap.tunnelInstances.getIamPolicy. Projektnivå skulle fungera men rör IAM
 # i det delade projektet, utanför team3:s egna resurser. Avvaktar besked från
 # instruktören. Se motsvarande issue.
-
 
