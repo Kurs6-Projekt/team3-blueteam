@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.15.0, < 2.0.0"
+
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -13,11 +15,10 @@ provider "google" {
 }
 
 locals {
-  instructor_vpc_self_link = "https://www.googleapis.com/compute/v1/projects/${var.project_id}/global/networks/instructor-vpc"
-  team_zone                = (var.team_id - 1) % 3
-  jumphost_zone            = coalesce(var.jumphost_zone, data.google_compute_zones.available.names[local.team_zone])
-  primary_zone             = coalesce(var.primary_zone, data.google_compute_zones.available.names[local.team_zone])
-  subnet_cidr              = "10.0.${var.team_id}.0/24"
+  team_zone     = (var.team_id - 1) % 3
+  jumphost_zone = coalesce(var.jumphost_zone, data.google_compute_zones.available.names[local.team_zone])
+  primary_zone  = coalesce(var.primary_zone, data.google_compute_zones.available.names[local.team_zone])
+  subnet_cidr   = "10.0.${var.team_id}.0/24"
 }
 
 data "google_compute_zones" "available" {
