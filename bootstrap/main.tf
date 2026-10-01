@@ -59,10 +59,15 @@ resource "google_storage_bucket" "terraform_state" {
 # Loggbucket för åtkomstloggar på state-bucketen. Samma slumpsuffix som
 # state-bucketen, eftersom bucketnamn är globalt unika i hela GCP.
 resource "google_storage_bucket" "access_logs" {
+  #checkov:skip=CKV_GCP_62:Den här bucketen är själv mottagare för state-bucketens åtkomstloggar; att logga till sig själv stöds inte.
   name                        = "team${var.team_id}-storage-logs-${random_id.bucket_suffix.hex}"
   location                    = "EU"
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
+
+  versioning {
+    enabled = true
+  }
 
   lifecycle_rule {
     condition {
@@ -136,6 +141,7 @@ resource "google_iam_workload_identity_pool" "github" {
 }
 
 resource "google_iam_workload_identity_pool_provider" "github" {
+  #checkov:skip=CKV_GCP_125:Trust begränsas med CEL till exakt repository och refs/heads/main nedan.
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
   workload_identity_pool_provider_id = "team${var.team_id}-github-provider"
   display_name                       = "GitHub Actions Provider"

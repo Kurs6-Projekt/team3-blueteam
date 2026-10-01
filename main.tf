@@ -82,6 +82,9 @@ resource "google_compute_resource_policy" "daily_schedule" {
 }
 
 resource "google_compute_instance" "jumphost" {
+  #checkov:skip=CKV_GCP_38:Labbprojektet använder Google-hanterad diskkryptering; egna CSEK-nycklar ingår inte i miljön.
+  #checkov:skip=CKV_GCP_40:Jumphosten behöver en fast publik IP för SSH och Headscale via instructor-proxy.
+  #checkov:skip=CKV_GCP_36:IP forwarding krävs eftersom jumphosten är router och NAT-gateway för primary och Tailnet.
   name         = "team${var.team_id}-jumphost"
   machine_type = "e2-micro"
   zone         = local.jumphost_zone
@@ -162,6 +165,7 @@ resource "google_compute_instance" "jumphost" {
 }
 
 resource "google_compute_instance" "primary" {
+  #checkov:skip=CKV_GCP_38:Labbprojektet använder Google-hanterad diskkryptering; egna CSEK-nycklar ingår inte i miljön.
   name         = "team${var.team_id}-primary"
   machine_type = "e2-small"
   zone         = local.primary_zone
@@ -177,6 +181,13 @@ resource "google_compute_instance" "primary" {
       image = "${var.project_id}/debian"
       size  = 20
     }
+  }
+
+  # Secure Boot lämnas av eftersom labbimagen saknar godkänd signerad kärna.
+  shielded_instance_config {
+    enable_secure_boot          = false
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
   }
 
   network_interface {
