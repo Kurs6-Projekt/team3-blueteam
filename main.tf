@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.15.0, < 2.0.0"
+
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -13,11 +15,10 @@ provider "google" {
 }
 
 locals {
-  instructor_vpc_self_link = "https://www.googleapis.com/compute/v1/projects/${var.project_id}/global/networks/instructor-vpc"
-  team_zone                = (var.team_id - 1) % 3
-  jumphost_zone            = coalesce(var.jumphost_zone, data.google_compute_zones.available.names[local.team_zone])
-  primary_zone             = coalesce(var.primary_zone, data.google_compute_zones.available.names[local.team_zone])
-  subnet_cidr              = "10.0.${var.team_id}.0/24"
+  team_zone     = (var.team_id - 1) % 3
+  jumphost_zone = coalesce(var.jumphost_zone, data.google_compute_zones.available.names[local.team_zone])
+  primary_zone  = coalesce(var.primary_zone, data.google_compute_zones.available.names[local.team_zone])
+  subnet_cidr   = "10.0.${var.team_id}.0/24"
 }
 
 data "google_compute_zones" "available" {
@@ -81,6 +82,9 @@ resource "google_compute_resource_policy" "daily_schedule" {
 }
 
 resource "google_compute_instance" "jumphost" {
+  #checkov:skip=CKV_GCP_38:Labbprojektet använder Google-hanterad diskkryptering; egna CSEK-nycklar ingår inte i miljön.
+  #checkov:skip=CKV_GCP_40:Jumphosten behöver en fast publik IP för SSH och Headscale via instructor-proxy.
+  #checkov:skip=CKV_GCP_36:IP forwarding krävs eftersom jumphosten är router och NAT-gateway för primary och Tailnet.
   name         = "team${var.team_id}-jumphost"
   machine_type = "e2-micro"
   zone         = local.jumphost_zone
@@ -161,6 +165,7 @@ resource "google_compute_instance" "jumphost" {
 }
 
 resource "google_compute_instance" "primary" {
+  #checkov:skip=CKV_GCP_38:Labbprojektet använder Google-hanterad diskkryptering; egna CSEK-nycklar ingår inte i miljön.
   name         = "team${var.team_id}-primary"
   machine_type = "e2-small"
   zone         = local.primary_zone
@@ -176,6 +181,13 @@ resource "google_compute_instance" "primary" {
       image = "${var.project_id}/debian"
       size  = 20
     }
+  }
+
+  # Secure Boot lämnas av eftersom labbimagen saknar godkänd signerad kärna.
+  shielded_instance_config {
+    enable_secure_boot          = false
+    enable_vtpm                 = true
+    enable_integrity_monitoring = true
   }
 
   network_interface {
