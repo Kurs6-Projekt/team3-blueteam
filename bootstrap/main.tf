@@ -147,7 +147,10 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
 
-  attribute_condition = "assertion.repository == '${var.github_repo}'"
+  # Endast workflow-körningar från repots main-branch får växla till
+  # CI/CD-kontot. Det begränsar skadan om en annan branch innehåller ett
+  # manipulerat workflow.
+  attribute_condition = "assertion.repository == '${var.github_repo}' && assertion.ref == 'refs/heads/main'"
 }
 
 resource "google_service_account_iam_member" "cicd_workload_identity" {
@@ -168,4 +171,3 @@ resource "google_project_service" "iap" {
 # på iap.tunnelInstances.getIamPolicy. Projektnivå skulle fungera men rör IAM
 # i det delade projektet, utanför team3:s egna resurser. Avvaktar besked från
 # instruktören. Se motsvarande issue.
-
