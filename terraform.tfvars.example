@@ -43,3 +43,4 @@ os_login_users = [
 ]
 
 primary_zone = "europe-north2-a"
+jumphost_zone = "europe-north2-b"
