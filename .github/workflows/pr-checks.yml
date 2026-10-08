@@ -24,7 +24,6 @@ jobs:
           terraform_version: "1.15.7"
 
       - name: TFLint
-        continue-on-error: true
         run: tflint --recursive
 
       - name: Terraform Format Check
@@ -41,4 +40,4 @@ jobs:
         with:
           directory: .
           framework: terraform
-          soft_fail: true
+          soft_fail: false

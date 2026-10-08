@@ -26,12 +26,6 @@ variable "team_id" {
   type        = number
 }
 
-variable "instructor_cidr" {
-  description = "The CIDR range for the instructor's network"
-  type        = string
-  default     = "10.0.0.0/24"
-}
-
 variable "ssh_users" {
   description = "List of SSH users and their public keys for instance access"
   type = list(object({
